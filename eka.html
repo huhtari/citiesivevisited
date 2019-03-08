@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css"
+      type="text/css"
+    />
+    <style>
+      .map {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+    <title>OpenLayers example</title>
+  </head>
+  <body>
+    <h2>My Map</h2>
+    <div id="map" class="map"></div>
+    <div id="mouse-position"></div>
+    <script type="text/javascript">
+      function cityortown(address) {
+        return address.city ? address.city : address.town;
+      }
+      function reverseGeocode(coords) {
+        console.log(coords);
+        fetch(
+          "http://nominatim.openstreetmap.org/reverse?format=json&lon=" +
+            coords[0] +
+            "&lat=" +
+            coords[1]
+        )
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(json) {
+            document.getElementById("mouse-position").innerHTML =
+              "" + coords + " " + cityortown(json.address);
+            console.log(json);
+          });
+      }
+      var map = new ol.Map({
+        target: "map",
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([24.93, 60.17]),
+          zoom: 4
+        })
+      });
+      map.on("click", function(evt) {
+        var coord = ol.proj.toLonLat(evt.coordinate);
+        console.log("got", coord);
+        reverseGeocode(coord);
+      });
+    </script>
+  </body>
+</html>
