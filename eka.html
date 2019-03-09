@@ -11,6 +11,14 @@
         height: 100%;
         width: 100%;
       }
+      #marker {
+        width: 20px;
+        height: 20px;
+        border: 1px solid #088;
+        border-radius: 10px;
+        background-color: #0ff;
+        opacity: 0.5;
+      }
     </style>
     <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
     <title>OpenLayers example</title>
@@ -19,11 +27,25 @@
     <h2>My Map</h2>
     <div id="map" class="map"></div>
     <div id="mouse-position"></div>
+    <div style="display: none;">
+      <!-- Clickable label for Vienna -->
+      <a
+        class="overlay"
+        id="vienna"
+        target="_blank"
+        href="http://en.wikipedia.org/wiki/Vienna"
+        >Vienna</a
+      >
+      <div id="marker" title="Marker"></div>
+      <!-- Popup -->
+      <div id="popup" title="Welcome to OpenLayers"></div>
+    </div>
+
     <script type="text/javascript">
       function cityortown(address) {
         return address.city ? address.city : address.town
       }
-      function reverseGeocode(coords) {
+      function reverseGeocode(map, coords) {
         console.log(coords)
         fetch(
           "http://nominatim.openstreetmap.org/reverse?format=json&lon=" +
@@ -38,6 +60,18 @@
             document.getElementById("mouse-position").innerHTML =
               "" + coords + " " + cityortown(json.address)
             console.log(json)
+            console.log(json.lon, json.lat)
+            // Vienna marker
+            var pos = ol.proj.fromLonLat([Number(json.lon), Number(json.lat)])
+            console.log(pos)
+            var marker = new ol.Overlay({
+              position: pos,
+              positioning: "center-center",
+              element: document.getElementById("marker"),
+              stopEvent: false
+            })
+            console.log(marker)
+            map.addOverlay(marker)
           })
       }
       var map = new ol.Map({
@@ -53,9 +87,10 @@
         })
       })
       map.on("click", function(evt) {
+        console.log(evt.coordinate)
         var coord = ol.proj.toLonLat(evt.coordinate)
         console.log("got", coord)
-        reverseGeocode(coord)
+        reverseGeocode(map, coord)
       })
     </script>
   </body>
