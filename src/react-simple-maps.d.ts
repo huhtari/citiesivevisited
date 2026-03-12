@@ -14,6 +14,7 @@ declare module 'react-simple-maps' {
 
   interface Geography {
     rsmKey: string;
+    id: string | number;
     properties: Record<string, unknown>;
   }
 

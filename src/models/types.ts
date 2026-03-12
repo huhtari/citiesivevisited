@@ -4,7 +4,7 @@ export interface Trip {
   countryCode: string; // ISO 3166-1 alpha-2
   countryName: string;
   cities: string[];
-  visitDate: string; // "YYYY-MM" or "YYYY-MM-DD"
+  visitDate: string; // "YYYY-MM" or "YYYY-MM-DD", empty string if unknown
   note: string; // "" when absent
   createdAt: string; // ISO 8601
   updatedAt: string; // ISO 8601

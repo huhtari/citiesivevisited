@@ -29,13 +29,15 @@ describe('TripForm — create mode', () => {
     expect(screen.getByText(/country is required/i)).toBeTruthy();
   });
 
-  it('shows validation message when date is empty', async () => {
+  it('submits successfully without a date (date is optional)', async () => {
     const handleSubmit = vi.fn();
     render(<TripForm onSubmit={handleSubmit} onCancel={vi.fn()} />);
     await userEvent.type(screen.getByLabelText(/country/i), 'Japan');
+    await userEvent.click(screen.getByRole('option', { name: 'Japan' }));
     await userEvent.click(screen.getByRole('button', { name: /save/i }));
-    expect(handleSubmit).not.toHaveBeenCalled();
-    expect(screen.getByText(/date is required/i)).toBeTruthy();
+    expect(handleSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ countryCode: 'JP', visitDate: '' }),
+    );
   });
 
   it('calls onSubmit with correct data when form is valid', async () => {

@@ -14,7 +14,7 @@ export function TripForm({ initialValues, onSubmit, onCancel }: TripFormProps) {
   const [cities, setCities] = useState<string[]>(initialValues?.cities ?? ['']);
   const [visitDate, setVisitDate] = useState(initialValues?.visitDate ?? '');
   const [note, setNote] = useState(initialValues?.note ?? '');
-  const [errors, setErrors] = useState<{ country?: string; date?: string }>({});
+  const [errors, setErrors] = useState<{ country?: string }>({});
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const suggestions = countryQuery.length >= 1
@@ -48,9 +48,8 @@ export function TripForm({ initialValues, onSubmit, onCancel }: TripFormProps) {
   }
 
   function validate(): boolean {
-    const newErrors: { country?: string; date?: string } = {};
+    const newErrors: { country?: string } = {};
     if (!countryQuery.trim()) newErrors.country = 'Country is required.';
-    if (!visitDate.trim()) newErrors.date = 'Date is required.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }
@@ -127,7 +126,7 @@ export function TripForm({ initialValues, onSubmit, onCancel }: TripFormProps) {
       {/* Date */}
       <div className="mb-4">
         <label htmlFor="visit-date" className="block text-sm font-medium text-gray-700 mb-1">
-          Date visited *
+          Date visited (optional)
         </label>
         <input
           id="visit-date"
@@ -137,9 +136,6 @@ export function TripForm({ initialValues, onSubmit, onCancel }: TripFormProps) {
           className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           aria-label="Date visited"
         />
-        {errors.date && (
-          <p className="text-red-600 text-xs mt-1">{errors.date}</p>
-        )}
       </div>
 
       {/* Cities */}

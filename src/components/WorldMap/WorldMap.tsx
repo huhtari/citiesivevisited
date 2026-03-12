@@ -1,5 +1,6 @@
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import geoData from 'world-atlas/countries-110m.json';
+import { NUMERIC_TO_ALPHA2 } from '../../data/numericToAlpha2';
 
 interface WorldMapProps {
   visitedCodes: Set<string>;
@@ -26,15 +27,15 @@ export function WorldMap({ visitedCodes, onCountryClick, isLoading }: WorldMapPr
         <Geographies geography={geoData}>
           {({ geographies }) =>
             geographies.map((geo) => {
-              const code: string = geo.properties.ISO_A2 as string;
+              const code: string = NUMERIC_TO_ALPHA2[String(geo.id)] ?? '';
               const isVisited = visitedCodes.has(code);
               return (
                 <Geography
                   key={geo.rsmKey}
                   geography={geo}
                   role="button"
-                  aria-label={`${geo.properties.NAME as string}${isVisited ? ' (visited)' : ''}`}
-                  onClick={() => onCountryClick(code)}
+                  aria-label={code ? `${code}${isVisited ? ' (visited)' : ''}` : 'Unknown country'}
+                  onClick={() => code && onCountryClick(code)}
                   style={{
                     default: {
                       fill: isVisited ? '#3b82f6' : '#d1d5db',

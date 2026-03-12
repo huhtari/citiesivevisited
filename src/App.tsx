@@ -6,6 +6,11 @@ import { CountryDetail } from './components/CountryDetail/CountryDetail';
 import { TripForm } from './components/TripForm/TripForm';
 import type { CountrySummary, Trip, TripInput } from './models/types';
 import { exportJSON, importJSON } from './services/trips';
+import { COUNTRIES } from './data/countries';
+
+const COUNTRY_NAME: Record<string, string> = Object.fromEntries(
+  COUNTRIES.map((c) => [c.code, c.name]),
+);
 
 function deriveCountrySummaries(trips: Trip[]): CountrySummary[] {
   const map = new Map<string, { summary: CountrySummary; allCities: Set<string> }>();
@@ -29,8 +34,8 @@ function deriveCountrySummaries(trips: Trip[]): CountrySummary[] {
         cityCount: existing.allCities.size,
         tripCount: existing.summary.tripCount + 1,
         mostRecentVisit:
-          trip.visitDate > existing.summary.mostRecentVisit
-            ? trip.visitDate
+          (trip.visitDate ?? '') > existing.summary.mostRecentVisit
+            ? (trip.visitDate ?? '')
             : existing.summary.mostRecentVisit,
       };
     }
@@ -45,6 +50,7 @@ export default function App() {
   const [selectedCountryCode, setSelectedCountryCode] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editTripId, setEditTripId] = useState<string | null>(null);
+  const [prefilledCountry, setPrefilledCountry] = useState<{ countryCode: string; countryName: string } | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
 
   const countrySummaries = deriveCountrySummaries(trips);
@@ -58,6 +64,17 @@ export default function App() {
 
   const editTrip = editTripId ? trips.find((t) => t.id === editTripId) : undefined;
 
+  function handleMapClick(code: string) {
+    if (!code) return;
+    if (visitedCodes.has(code)) {
+      setSelectedCountryCode(code);
+    } else {
+      setPrefilledCountry({ countryCode: code, countryName: COUNTRY_NAME[code] ?? code });
+      setEditTripId(null);
+      setShowAddForm(true);
+    }
+  }
+
   function handleFormSubmit(input: TripInput) {
     if (editTripId) {
       updateTrip(editTripId, input);
@@ -66,6 +83,13 @@ export default function App() {
     }
     setShowAddForm(false);
     setEditTripId(null);
+    setPrefilledCountry(null);
+  }
+
+  function handleFormCancel() {
+    setShowAddForm(false);
+    setEditTripId(null);
+    setPrefilledCountry(null);
   }
 
   function handleExport() {
@@ -114,7 +138,7 @@ export default function App() {
             <input type="file" accept=".json" className="sr-only" onChange={handleImportFile} />
           </label>
           <button
-            onClick={() => { setEditTripId(null); setShowAddForm(true); }}
+            onClick={() => { setEditTripId(null); setPrefilledCountry(null); setShowAddForm(true); }}
             className="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors min-h-[44px] font-medium"
             aria-label="Add a new visit"
           >
@@ -136,7 +160,7 @@ export default function App() {
           <div className="lg:flex-1">
             <WorldMap
               visitedCodes={visitedCodes}
-              onCountryClick={setSelectedCountryCode}
+              onCountryClick={handleMapClick}
               isLoading={false}
             />
             <p className="mt-2 text-sm text-gray-500 text-center">
@@ -198,13 +222,12 @@ export default function App() {
                       visitDate: editTrip.visitDate,
                       note: editTrip.note,
                     }
-                  : undefined
+                  : prefilledCountry
+                    ? { countryCode: prefilledCountry.countryCode, countryName: prefilledCountry.countryName, cities: [], visitDate: '', note: '' }
+                    : undefined
               }
               onSubmit={handleFormSubmit}
-              onCancel={() => {
-                setShowAddForm(false);
-                setEditTripId(null);
-              }}
+              onCancel={handleFormCancel}
             />
           </div>
         </div>

@@ -17,7 +17,7 @@ export function CountryDetail({
   onDelete,
   onBack,
 }: CountryDetailProps) {
-  const sorted = [...trips].sort((a, b) => b.visitDate.localeCompare(a.visitDate));
+  const sorted = [...trips].sort((a, b) => (b.visitDate ?? '').localeCompare(a.visitDate ?? ''));
 
   function handleDelete(trip: Trip) {
     if (window.confirm(`Delete this trip to ${countryName}? This cannot be undone.`)) {
@@ -55,7 +55,7 @@ export function CountryDetail({
                 <li key={trip.id} role="article" className="bg-gray-50 rounded-lg p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-gray-500 mb-1">{trip.visitDate}</p>
+                      <p className="text-sm text-gray-500 mb-1">{trip.visitDate || 'Date unknown'}</p>
                       {trip.cities.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-2">
                           {trip.cities.map((city) => (

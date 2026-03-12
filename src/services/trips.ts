@@ -19,7 +19,7 @@ function writeRaw(trips: Trip[]): void {
 
 /** Returns all trips sorted by visitDate descending. */
 export function getTrips(): Trip[] {
-  return readRaw().sort((a, b) => b.visitDate.localeCompare(a.visitDate));
+  return readRaw().sort((a, b) => (b.visitDate ?? '').localeCompare(a.visitDate ?? ''));
 }
 
 /** Creates a new trip, persists it, and returns it. */
